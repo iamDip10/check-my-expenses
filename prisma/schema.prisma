@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  OWNER
+  MONITOR
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  MOBILE_BANKING
+  OTHER
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role
+  createdAt    DateTime @default(now())
+
+  expenses  Expense[] @relation("OwnerExpenses")
+  reactions Reaction[]
+  budgets   Budget[]
+  quickActions QuickAction[]
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  label     String
+  icon      String
+  color     String
+  isDefault Boolean  @default(false)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  expenses Expense[]
+}
+
+model Expense {
+  id            String        @id @default(cuid())
+  userId        String
+  user          User          @relation("OwnerExpenses", fields: [userId], references: [id], onDelete: Cascade)
+  amount        Int
+  categoryId    String
+  category      Category      @relation(fields: [categoryId], references: [id])
+  description   String?
+  occurredAt    DateTime
+  paymentMethod PaymentMethod @default(OTHER)
+
+  // optional travel-specific fields
+  travelFrom      String?
+  travelTo        String?
+  transportType   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reactions Reaction[]
+
+  @@index([userId, occurredAt])
+  @@index([categoryId])
+}
+
+model Reaction {
+  id        String   @id @default(cuid())
+  expenseId String
+  expense   Expense  @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emoji     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([expenseId, userId])
+}
+
+model Budget {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  month     String   // format: "YYYY-MM"
+  amount    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, month])
+}
+
+model QuickAction {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label      String
+  amount     Int
+  categoryId String
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+}
