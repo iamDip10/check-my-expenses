@@ -49,22 +49,7 @@ async function main() {
     });
   }
 
-  const foodCategory = await prisma.category.findUnique({ where: { key: 'food' } });
-  const travelCategory = await prisma.category.findUnique({ where: { key: 'travel' } });
-  const shoppingCategory = await prisma.category.findUnique({ where: { key: 'shopping' } });
 
-  if (foodCategory && travelCategory && shoppingCategory) {
-    const existingQuickActions = await prisma.quickAction.count({ where: { userId: owner.id } });
-    if (existingQuickActions === 0) {
-      await prisma.quickAction.createMany({
-        data: [
-          { userId: owner.id, label: 'Lunch', amount: 100, categoryId: foodCategory.id, order: 1 },
-          { userId: owner.id, label: 'Commute', amount: 50, categoryId: travelCategory.id, order: 2 },
-          { userId: owner.id, label: 'Groceries', amount: 200, categoryId: shoppingCategory.id, order: 3 },
-        ],
-      });
-    }
-  }
 
   console.log('Seed complete.');
   console.log(`Owner login:   ${ownerEmail}`);
