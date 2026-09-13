@@ -89,7 +89,7 @@ export function OwnerDashboard({
         </button>
       </header>
 
-      {quickActions.length > 0 && (
+      {/* {quickActions.length > 0 && (
         <div className="-mx-1 flex gap-2 overflow-x-auto px-1 no-scrollbar">
           {quickActions.map((qa) => (
             <button
@@ -104,7 +104,7 @@ export function OwnerDashboard({
             </button>
           ))}
         </div>
-      )}
+      )} */}
 
       {expenses.length > 0 && (
         <div className="rounded-card border border-line bg-card p-5 shadow-soft">
