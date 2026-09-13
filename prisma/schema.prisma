@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env(postgres://b54d49150add851944c8dede20393fde9342e389cd51ede3d9aa55597251cc64:sk_pUgrcTAd3rXctpZ7-GDRW@pooled.db.prisma.io:5432/postgres?sslmode=require)
+  url       = env("postgres://b54d49150add851944c8dede20393fde9342e389cd51ede3d9aa55597251cc64:sk_pUgrcTAd3rXctpZ7-GDRW@pooled.db.prisma.io:5432/postgres?sslmode=require")
   directUrl = env("DIRECT_URL")
 }
 
