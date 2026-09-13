@@ -3,9 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("STORAGE_PRISMA_DATABASE_URL")
- 
+  provider = "postgresql"
+  url      = env("STORAGE_PRISMA_DATABASE_URL")
 }
 
 enum Role {
@@ -28,9 +27,9 @@ model User {
   role         Role
   createdAt    DateTime @default(now())
 
-  expenses  Expense[] @relation("OwnerExpenses")
-  reactions Reaction[]
-  budgets   Budget[]
+  expenses    Expense[]     @relation("OwnerExpenses")
+  reactions   Reaction[]
+  budgets     Budget[]
   quickActions QuickAction[]
 }
 
@@ -44,7 +43,8 @@ model Category {
   order     Int      @default(0)
   createdAt DateTime @default(now())
 
-  expenses Expense[]
+  expenses     Expense[]
+  quickActions QuickAction[]
 }
 
 model Expense {
@@ -58,10 +58,10 @@ model Expense {
   occurredAt    DateTime
   paymentMethod PaymentMethod @default(OTHER)
 
-  // optional travel-specific fields
-  travelFrom      String?
-  travelTo        String?
-  transportType   String?
+  // Optional travel-specific fields
+  travelFrom   String?
+  travelTo     String?
+  transportType String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -89,7 +89,7 @@ model Budget {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  month     String   // format: "YYYY-MM"
+  month     String
   amount    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -104,6 +104,7 @@ model QuickAction {
   label      String
   amount     Int
   categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
   order      Int      @default(0)
   createdAt  DateTime @default(now())
 }

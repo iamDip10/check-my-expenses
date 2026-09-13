@@ -1,17 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 import { prisma } from '@/lib/prisma';
 import { getSessionUser } from '@/lib/session';
 
-export async function POST(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const user = await getSessionUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (user.role !== 'OWNER') {
-    return NextResponse.json({ error: 'Only the owner can log expenses.' }, { status: 403 });
+
+  if (!user) {
+    return NextResponse.json(
+      { error: 'Unauthorized' },
+      { status: 401 }
+    );
   }
 
-  const quickAction = await prisma.quickAction.findUnique({ where: { id: params.id } });
+  if (user.role !== 'OWNER') {
+    return NextResponse.json(
+      { error: 'Only the owner can log expenses.' },
+      { status: 403 }
+    );
+  }
+
+  const { id } = await params;
+
+  const quickAction = await prisma.quickAction.findUnique({
+    where: { id },
+  });
+
   if (!quickAction || quickAction.userId !== user.id) {
-    return NextResponse.json({ error: 'Quick action not found.' }, { status: 404 });
+    return NextResponse.json(
+      { error: 'Quick action not found.' },
+      { status: 404 }
+    );
   }
 
   const expense = await prisma.expense.create({
@@ -23,8 +45,14 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
       occurredAt: new Date(),
       paymentMethod: 'OTHER',
     },
-    include: { category: true, reactions: true },
+    include: {
+      category: true,
+      reactions: true,
+    },
   });
 
-  return NextResponse.json({ expense }, { status: 201 });
+  return NextResponse.json(
+    { expense },
+    { status: 201 }
+  );
 }
